@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,11 +8,13 @@ import {
   Keyboard,
   TouchableOpacity,
 } from 'react-native';
+import { StackScreenProps } from '@react-navigation/stack';
+
 import { Background } from '../components/Background';
 import { WhiteLogo } from '../components/WhiteLogo';
 import { loginStyles } from '../theme/loginTheme';
 import { useForm } from '../hooks/useForm';
-import { StackScreenProps } from '@react-navigation/stack';
+import { AuthContext } from '../context/authContext';
 
 interface Props extends StackScreenProps<any, any> {}
 
@@ -22,9 +24,9 @@ export const LoginScreen = ({ navigation }: Props) => {
     password: '',
   });
 
+  const { signin } = useContext(AuthContext);
   const onLogin = () => {
-    console.log('email: ', email);
-    console.log('password: ', password);
+    signin({ email, password });
     Keyboard.dismiss();
   };
   return (
