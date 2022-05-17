@@ -6,8 +6,8 @@ import {
   TextInput,
   View,
   Keyboard,
+  TouchableOpacity,
 } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Background } from '../components/Background';
 import { WhiteLogo } from '../components/WhiteLogo';
 import { loginStyles } from '../theme/loginTheme';
