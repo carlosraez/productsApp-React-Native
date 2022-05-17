@@ -3,12 +3,16 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { ProtectedScreen } from '../screens/ProtectedScreen';
+import { LoadingScreen } from '../screens/ProtectedScreen';
 import { AuthContext } from '../context/authContext';
 
 const Stack = createStackNavigator();
 
 export const Navigator = () => {
   const { status } = useContext(AuthContext);
+  if (status === 'cheking') {
+    return <Stack.Screen name="LoadingScreen" component={LoadingScreen} />;
+  }
   return (
     <Stack.Navigator
       screenOptions={{

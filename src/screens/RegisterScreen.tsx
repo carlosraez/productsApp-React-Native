@@ -22,8 +22,6 @@ export const RegisterScreen = ({ navigation }: Props) => {
     name: '',
   });
   const onRegister = () => {
-    console.log('email: ', email);
-    console.log('password: ', password);
     Keyboard.dismiss();
   };
   return (

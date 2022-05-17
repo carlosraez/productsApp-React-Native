@@ -1,4 +1,5 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useEffect, useReducer } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import cafeApi from '../api/cafiApi';
 import { Usuario, LoginResponse, LoginData } from '../interfaces/appInterfaces';
 import { authReducer, AuthState } from './authReducer';
@@ -26,6 +27,27 @@ const atuhInicitalState: AuthState = {
 export const AuthProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(authReducer, atuhInicitalState);
 
+  useEffect(() => {
+    validateToken();
+  }, []);
+
+  const validateToken = async () => {
+    const token = await AsyncStorage.getItem('token');
+    if (token) {
+      const resp = await cafeApi.get('/auth');
+      if (resp.status !== 200) {
+        return dispatch({ type: 'notAuthenticatet' });
+      }
+
+      dispatch({
+        type: 'signUp',
+        payload: { token: resp.data.token, user: resp.data.user },
+      });
+    } else {
+      dispatch({ type: 'notAuthenticatet' });
+    }
+  };
+
   const signin = async ({ email, password }: LoginData) => {
     try {
       const { data } = await cafeApi.post<LoginResponse>('/auth/login', {
@@ -36,8 +58,14 @@ export const AuthProvider = ({ children }: any) => {
         type: 'signUp',
         payload: { token: data.token, user: data.usuario },
       });
+      await AsyncStorage.setItem('token', data.token);
     } catch (error: any) {
-      console.log(error.response.data.msg);
+      console.log(error);
+
+      dispatch({
+        type: 'addError',
+        payload: error.response.data.msg || 'información incorrecta',
+      });
     }
   };
 
