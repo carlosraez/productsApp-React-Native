@@ -23,26 +23,28 @@ const atuhInicitalState: AuthState = {
   errorMessage: '',
 };
 
-const signin = async ({ email, password }: LoginData) => {
-  try {
-    console.log(email);
-
-    const resp = await cafeApi.post<LoginResponse>('/auth/login', {
-      correo: email,
-      password,
-    });
-    console.log(resp.data);
-  } catch (error: any) {
-    console.log(error.response.data);
-  }
-};
-
-const signup = () => {};
-const removeError = () => {};
-const logout = () => {};
-
 export const AuthProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(authReducer, atuhInicitalState);
+
+  const signin = async ({ email, password }: LoginData) => {
+    try {
+      const { data } = await cafeApi.post<LoginResponse>('/auth/login', {
+        correo: email,
+        password,
+      });
+      dispatch({
+        type: 'signUp',
+        payload: { token: data.token, user: data.usuario },
+      });
+    } catch (error: any) {
+      console.log(error.response.data.msg);
+    }
+  };
+
+  const signup = () => {};
+  const removeError = () => {};
+  const logout = () => {};
+
   return (
     <AuthContext.Provider
       value={{
