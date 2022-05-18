@@ -44,8 +44,9 @@ export const ProductsProvider = ({ children }: any) => {
     productName: string,
     productId: string,
   ) => {};
-  const loadProductbyId = async (productId: string) => {
-    throw new Error('No se encontro el producto');
+  const loadProductbyId = async (productId: string): Promise<Producto> => {
+    const resp = await cafeApi.get<Producto>(`/producto/${productId}`);
+    return resp.data;
   };
   const uploadImage = async (data: any, id: string) => {}; //TODO: cambiar Any
   return (
