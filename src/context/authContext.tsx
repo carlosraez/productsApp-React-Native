@@ -1,7 +1,12 @@
 import React, { createContext, useEffect, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import cafeApi from '../api/cafiApi';
-import { Usuario, LoginResponse, LoginData } from '../interfaces/appInterfaces';
+import {
+  Usuario,
+  LoginResponse,
+  LoginData,
+  RegisterData,
+} from '../interfaces/appInterfaces';
 import { authReducer, AuthState } from './authReducer';
 
 type AuthContextProps = {
@@ -9,7 +14,7 @@ type AuthContextProps = {
   token: string | null;
   user: Usuario | null;
   status: 'cheking' | 'authenticaded' | 'unauthenticaded';
-  signup: () => void;
+  signup: ({ name, email, password }: RegisterData) => void;
   signin: ({ email, password }: LoginData) => void;
   removeError: () => void;
   logout: () => void;
@@ -61,7 +66,6 @@ export const AuthProvider = ({ children }: any) => {
       await AsyncStorage.setItem('token', data.token);
     } catch (error: any) {
       console.log(error);
-
       dispatch({
         type: 'addError',
         payload: error.response.data.msg || 'información incorrecta',
@@ -69,9 +73,33 @@ export const AuthProvider = ({ children }: any) => {
     }
   };
 
-  const signup = () => {};
+  const signup = async ({ email, name, password }: RegisterData) => {
+    try {
+      const { data } = await cafeApi.post<LoginResponse>('/usuarios', {
+        correo: email,
+        nombre: name,
+        password,
+      });
+      dispatch({
+        type: 'signUp',
+        payload: { token: data.token, user: data.usuario },
+      });
+      await AsyncStorage.setItem('token', data.token);
+    } catch (error: any) {
+      console.log(error);
+
+      dispatch({
+        type: 'addError',
+        payload: error.response.data.errors[0].msg || 'Revise la información',
+      });
+    }
+  };
+
   const removeError = () => {};
-  const logout = () => {};
+  const logout = async () => {
+    await AsyncStorage.removeItem('token');
+    dispatch({ type: 'logout' });
+  };
 
   return (
     <AuthContext.Provider

@@ -3,6 +3,12 @@ export interface LoginData {
   password: string;
 }
 
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export interface LoginResponse {
   usuario: Usuario;
   token: string;
