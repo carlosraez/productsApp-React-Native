@@ -23,7 +23,7 @@ interface Props
 export const ProductScreen = ({ navigation, route }: Props) => {
   const { id = '', name = '' } = route.params;
   const { categories } = useGetCategories();
-  const { loadProductbyId, addProducts, udateProducts } =
+  const { loadProductbyId, addProducts, udateProducts, uploadImage } =
     useContext(ProductsContext);
 
   const { _id, categoriaId, nombre, img, form, onChange, setFormValue } =
@@ -81,10 +81,30 @@ export const ProductScreen = ({ navigation, route }: Props) => {
         if (resp.didCancel) {
           return;
         }
-        if (!resp.assets[0].uri) {
+        if (!resp.assets![0].uri) {
           return;
         }
-        setTempUri(resp.assets[0].uri);
+        setTempUri(resp.assets![0].uri);
+        uploadImage(resp, _id);
+      },
+    );
+  };
+
+  const takePhotoFromGallery = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.5,
+      },
+      resp => {
+        if (resp.didCancel) {
+          return;
+        }
+        if (!resp.assets![0].uri) {
+          return;
+        }
+        setTempUri(resp.assets![0].uri);
+        uploadImage(resp, _id);
       },
     );
   };
@@ -120,7 +140,8 @@ export const ProductScreen = ({ navigation, route }: Props) => {
               marginTop: 10,
             }}>
             <Button title="Cámara" onPress={takePhoto} />
-            <Button title="Galeria" onPress={() => {}} />
+            <View style={{ marginRight: 10 }} />
+            <Button title="Galeria" onPress={takePhotoFromGallery} />
           </View>
         )}
         {img.length > 0 && !tempUri && (
@@ -129,6 +150,7 @@ export const ProductScreen = ({ navigation, route }: Props) => {
             style={{
               width: '100%',
               height: 200,
+              marginTop: 20,
             }}
           />
         )}
@@ -138,6 +160,7 @@ export const ProductScreen = ({ navigation, route }: Props) => {
             style={{
               width: '100%',
               height: 200,
+              marginTop: 20,
             }}
           />
         )}

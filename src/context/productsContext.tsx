@@ -1,4 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { forceTouchGestureHandlerProps } from 'react-native-gesture-handler/lib/typescript/handlers/ForceTouchGestureHandler';
+import { ImagePickerResponse } from 'react-native-image-picker';
 import cafeApi from '../api/cafiApi';
 import { Producto, ProductsResponse } from '../interfaces/appInterfaces';
 
@@ -46,6 +48,7 @@ export const ProductsProvider = ({ children }: any) => {
       return resp.data;
     } catch (error) {
       console.log(error);
+      return;
     }
   };
 
@@ -79,7 +82,22 @@ export const ProductsProvider = ({ children }: any) => {
     const resp = await cafeApi.get<Producto>(`/producto/${productId}`);
     return resp.data;
   };
-  const uploadImage = async (data: any, id: string) => {}; //TODO: cambiar Any
+  const uploadImage = async (data: ImagePickerResponse, id: string) => {
+    const { assets } = data;
+    const fileToUpload = {
+      uri: assets![0].uri,
+      type: assets![0].type,
+      name: assets![0].fileName,
+    };
+    const formData = new FormData();
+    formData.append('archivo', fileToUpload);
+    try {
+      const resp = await cafeApi.put(`/uploads/productos/${id}`, formData);
+      console.log(resp);
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <ProductsContext.Provider
       value={{
