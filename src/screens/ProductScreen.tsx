@@ -21,7 +21,8 @@ interface Props
 export const ProductScreen = ({ navigation, route }: Props) => {
   const { id = '', name = '' } = route.params;
   const { categories } = useGetCategories();
-  const { loadProductbyId } = useContext(ProductsContext);
+  const { loadProductbyId, addProducts, udateProducts } =
+    useContext(ProductsContext);
 
   const { _id, categoriaId, nombre, img, form, onChange, setFormValue } =
     useForm({
@@ -33,9 +34,9 @@ export const ProductScreen = ({ navigation, route }: Props) => {
 
   useEffect(() => {
     navigation.setOptions({
-      title: name ? name : 'Nuevo Producto',
+      title: nombre ? nombre : 'Sin nombre del producto',
     });
-  }, []);
+  }, [nombre]);
 
   useEffect(() => {
     loadProduct();
@@ -53,11 +54,16 @@ export const ProductScreen = ({ navigation, route }: Props) => {
     }
   };
 
-  const serverUpdate = () => {
+  const serverUpdate = async () => {
     if (id.length > 0) {
-      console.log('actualizar');
+      udateProducts(categoriaId, nombre, id);
     } else {
-      console.log('crear producto');
+      if (categoriaId.length === 0) {
+        onChange(categories[0]._id, 'categoriaId');
+      }
+      const tempCategoriaId = categoriaId || categories[0]._id;
+      const newProduct = await addProducts(nombre, tempCategoriaId);
+      onChange(newProduct._id, '_id');
     }
   };
 
@@ -84,15 +90,15 @@ export const ProductScreen = ({ navigation, route }: Props) => {
           ))}
         </Picker>
         <Button title="Guardar" onPress={serverUpdate} />
-        {id.length > 0 && (
+        {_id.length > 0 && (
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'center',
               marginTop: 10,
             }}>
-            <Button title="Guardar" onPress={() => {}} />
-            <Button title="Guardar" onPress={() => {}} />
+            <Button title="Cámara" onPress={() => {}} />
+            <Button title="Galeria" onPress={() => {}} />
           </View>
         )}
 
