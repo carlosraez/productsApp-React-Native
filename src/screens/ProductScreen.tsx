@@ -10,6 +10,8 @@ import {
   Image,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+
 import { ProductosStackParams } from '../router/productsNavigator';
 import { useGetCategories } from '../hooks/useGetCategories';
 import { useForm } from '../hooks/useForm';
@@ -32,7 +34,7 @@ export const ProductScreen = ({ navigation, route }: Props) => {
       img: '',
     });
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [tempUri, setTempUri] = useState<string>('');
 
   useEffect(() => {
     navigation.setOptions({
@@ -69,10 +71,22 @@ export const ProductScreen = ({ navigation, route }: Props) => {
     }
   };
 
-  const loadProductsFromServer = async () => {
-    await serverUpdate();
-    setIsRefreshing(true);
-    navigation.goBack();
+  const takePhoto = () => {
+    launchCamera(
+      {
+        mediaType: 'photo',
+        quality: 0.5,
+      },
+      resp => {
+        if (resp.didCancel) {
+          return;
+        }
+        if (!resp.assets[0].uri) {
+          return;
+        }
+        setTempUri(resp.assets[0].uri);
+      },
+    );
   };
 
   return (
@@ -105,14 +119,22 @@ export const ProductScreen = ({ navigation, route }: Props) => {
               justifyContent: 'center',
               marginTop: 10,
             }}>
-            <Button title="Cámara" onPress={() => {}} />
+            <Button title="Cámara" onPress={takePhoto} />
             <Button title="Galeria" onPress={() => {}} />
           </View>
         )}
-
-        {img.length > 0 && (
+        {img.length > 0 && !tempUri && (
           <Image
-            source={{ uri: img }}
+            source={{ uri: tempUri || img }}
+            style={{
+              width: '100%',
+              height: 200,
+            }}
+          />
+        )}
+        {tempUri && (
+          <Image
+            source={{ uri: tempUri || img }}
             style={{
               width: '100%',
               height: 200,
