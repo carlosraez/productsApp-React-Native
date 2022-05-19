@@ -1,6 +1,6 @@
 import { StackScreenProps } from '@react-navigation/stack';
-import React, { useContext, useEffect } from 'react';
-import { View, FlatList, Text, StyleSheet } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { View, FlatList, Text, StyleSheet, RefreshControl } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
 import { ProductsContext } from '../context/productsContext';
@@ -11,6 +11,14 @@ interface Props
 
 export const ProductsScreen = ({ navigation }: Props) => {
   const { products, loadProducts } = useContext(ProductsContext);
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const loadProductsFromServer = async () => {
+    setIsRefreshing(true);
+    await loadProducts();
+    setIsRefreshing(false);
+  };
 
   useEffect(() => {
     navigation.setOptions({
@@ -48,6 +56,12 @@ export const ProductsScreen = ({ navigation }: Props) => {
           </TouchableOpacity>
         )}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={loadProductsFromServer}
+          />
+        }
       />
     </View>
   );

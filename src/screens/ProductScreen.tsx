@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext, useState } from 'react';
 import { StackScreenProps } from '@react-navigation/stack';
 import {
   View,
@@ -31,6 +31,8 @@ export const ProductScreen = ({ navigation, route }: Props) => {
       nombre: name,
       img: '',
     });
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({
@@ -65,6 +67,12 @@ export const ProductScreen = ({ navigation, route }: Props) => {
       const newProduct = await addProducts(nombre, tempCategoriaId);
       onChange(newProduct._id, '_id');
     }
+  };
+
+  const loadProductsFromServer = async () => {
+    await serverUpdate();
+    setIsRefreshing(true);
+    navigation.goBack();
   };
 
   return (
